@@ -9,11 +9,13 @@ public class PlayerController : MonoBehaviour,  IPilot {
     public float sensitivity;
     public float walkSpeed;
     public Transform cameraHolder;
+    public PilotSeat startVehicle;
 
     ////////////////////////////////////////////////////////////////////////////////
 
     private VehicleBase activeVehicle;
     private bool interactMode = false;
+    private Vector3 velocity = Vector3.zero;
 
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,6 +26,10 @@ public class PlayerController : MonoBehaviour,  IPilot {
     public void Awake() {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = true;
+
+        if(startVehicle != null) {
+            startVehicle.Enter(this);
+        }
     }
     
 
@@ -32,15 +38,21 @@ public class PlayerController : MonoBehaviour,  IPilot {
             SetInteraction(!interactMode);
         }
 
+        UpdateInteraction();
+        UpdateMovement();
+    }
+
+    public void FixedUpdate() {
+        if(activeVehicle == null) {
+            cc.Move(velocity);
+        }
+    }
+
+    private void UpdateInteraction() {
         if(interactMode == true) {
             return;
         }
 
-        UpdateEnterVehicle();
-        UpdateMovement();
-    }
-
-    private void UpdateEnterVehicle() {
         if(Input.GetKeyDown(KeyCode.E) == false) {
             return;
         }
@@ -58,11 +70,18 @@ public class PlayerController : MonoBehaviour,  IPilot {
 
 
         PilotSeat seat = hit.collider.GetComponent<PilotSeat>();
-        if(seat == null) {
+        if(seat != null) {
+            seat.Enter(this);
             return;
         }
 
-        seat.Enter(this);
+        AnimInteraction interaction = hit.collider.GetComponent<AnimInteraction>();
+        if(interaction != null) {
+            interaction.Invoke();
+            return;
+        }
+
+        
     }
 
 
@@ -70,6 +89,8 @@ public class PlayerController : MonoBehaviour,  IPilot {
         if(interactMode == true) {
             return;
         }
+
+        Vector3 impulse = Vector3.zero;
 
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
@@ -85,24 +106,30 @@ public class PlayerController : MonoBehaviour,  IPilot {
             transform.rotation *= Quaternion.Euler(0, mouseX * sensitivity, 0);
 
             if (Input.GetKey(KeyCode.W) == true) {
-                movement.z += walkSpeed * Time.deltaTime;
+                impulse += transform.forward;
             }
 
             if (Input.GetKey(KeyCode.S) == true) {
-                movement.z -= walkSpeed * Time.deltaTime;
+                impulse -= transform.forward;
             }
 
             if (Input.GetKey(KeyCode.D) == true) {
-                movement.x += walkSpeed * Time.deltaTime;
+                impulse += transform.right;
             }
 
             if (Input.GetKey(KeyCode.A) == true) {
-                movement.x -= walkSpeed * Time.deltaTime;
+                impulse -= transform.right;
             }
 
-            movement.y -= 9.6f * Time.deltaTime;
+            if (Input.GetKey(KeyCode.Space) == true) {
+                impulse += transform.up;
+            }
 
-            cc.Move(transform.rotation * (movement.normalized * walkSpeed * Time.deltaTime));
+            if (Input.GetKey(KeyCode.LeftControl) == true) {
+                impulse -= transform.up;
+            }
+
+            velocity += (impulse.normalized * walkSpeed * Time.deltaTime) * Time.deltaTime;
         }
     }
 
@@ -121,9 +148,11 @@ public class PlayerController : MonoBehaviour,  IPilot {
     public void OnEnterVehicle(VehicleBase vehicle) {
         activeVehicle = vehicle;
         cc.detectCollisions = false;
+        velocity = Vector3.zero;
     }
 
     public void OnExitVehicle(Transform target) {
+        velocity = Vector3.zero;
         activeVehicle = null;
         cc.enabled = false;
         cc.transform.position = target.position;
@@ -131,6 +160,22 @@ public class PlayerController : MonoBehaviour,  IPilot {
         cc.detectCollisions = true;
 
         cameraHolder.rotation = Quaternion.identity;
+    }
+
+    public void OnCollisionEnter(Collision collision) {
+        if(collision == null) {
+            return;
+        }
+
+        Debug.Log($"Enter: {collision.transform.name}");
+    }
+
+    public void OnCollisionStay(Collision collision) {
+        if(collision == null) {
+            return;
+        }
+
+        Debug.Log($"Stay: {collision.transform.name}");
     }
 }
 
