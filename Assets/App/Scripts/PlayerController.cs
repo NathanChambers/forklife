@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour,  IPilot {
     public float walkSpeed;
     public Transform cameraHolder;
     public PilotSeat startVehicle;
+    public AsteroidField asteroidField;
 
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,11 @@ public class PlayerController : MonoBehaviour,  IPilot {
     }
 
     public void FixedUpdate() {
+        if ((transform.position + velocity).magnitude > (asteroidField.fieldSize / 2) * asteroidField.cellSize) {
+            velocity = Vector3.zero;
+            return;
+        }
+
         if(activeVehicle == null) {
             cc.Move(velocity);
         }
