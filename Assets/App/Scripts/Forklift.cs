@@ -13,6 +13,7 @@ public class Forklift : VehicleBase {
     public float steeringLock = 75;
     public float recenterForce = 0.9f;
 
+    public Battery battery;
 
     public Transform forkTransform;
     public float forkHeightMin;
@@ -23,6 +24,7 @@ public class Forklift : VehicleBase {
     public float forkSlowPower = 0.5f;
     public float forkVelocity;
     public float forkDamper;
+    
 
 
     public Rigidbody rb;
@@ -35,7 +37,6 @@ public class Forklift : VehicleBase {
     public Quaternion cacheRotation;
 
     public Transform steeringWheel;
-
 
     public void Awake() {
         cachePosition = transform.position;

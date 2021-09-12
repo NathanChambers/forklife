@@ -44,9 +44,11 @@ public class PlayerController : MonoBehaviour,  IPilot {
     }
 
     public void FixedUpdate() {
-        if ((transform.position + velocity).magnitude > (asteroidField.fieldSize / 2) * asteroidField.cellSize) {
+        if (asteroidField != null) {
+            if ((transform.position + velocity).magnitude > (asteroidField.fieldSize / 2) * asteroidField.cellSize) {
             velocity = Vector3.zero;
             return;
+            }
         }
 
         if(activeVehicle == null) {
