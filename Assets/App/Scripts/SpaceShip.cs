@@ -56,7 +56,7 @@ public class SpaceShip : VehicleBase {
             pitchRollInput = true;
         }
 
-        if(Input.GetKey(KeyCode.E) == true) {
+        if(Input.GetKey(KeyCode.Return) == true) {
             pitchRollYaw.y += sensitivity * Time.deltaTime;
             pitchRollInput = true;
         }

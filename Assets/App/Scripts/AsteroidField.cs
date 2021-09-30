@@ -13,7 +13,7 @@ public class AsteroidField : MonoBehaviour {
 
     private List<GameObject> asteroids = new List<GameObject>();
 
-    public void Awake() {
+    public void Start() {
         if((int)fieldSize % 2 != 0) {
             fieldSize += 1;
         }

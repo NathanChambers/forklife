@@ -61,7 +61,7 @@ public class PlayerController : MonoBehaviour,  IPilot {
             return;
         }
 
-        if(Input.GetKeyDown(KeyCode.E) == false) {
+        if(Input.GetKeyDown(KeyCode.Return) == false) {
             return;
         }
 
